@@ -1,0 +1,8 @@
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/build
+src/main/res/drawable/
+app/src/main/res/drawable/
