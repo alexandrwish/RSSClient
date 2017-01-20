@@ -60,7 +60,9 @@ public class RssPresenter {
                 .observeOn(Schedulers.io())
                 .subscribe(new Subscriber<List<ItemRecord>>() {
                     public void onCompleted() {
-                        mListener.stopRefresh();
+                        if (mListener != null) {
+                            mListener.stopRefresh();
+                        }
                     }
 
                     public void onError(Throwable e) {
