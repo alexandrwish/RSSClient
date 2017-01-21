@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface ViewListener {
 
-    void render(List<ItemRecord> records);
+    void onDataLoad(List<ItemRecord> records);
 
-    void stopRefresh();
+    void onStopRefresh();
 
-    void show(String url);
+    void onShowNews(String url);
 }

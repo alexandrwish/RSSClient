@@ -31,8 +31,7 @@ public class ItemsAdapter extends ArrayAdapter<ItemRecord> {
         View view;
         if (convertView == null) {
             view = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.list_item, parent, false);
-            ViewHolder holder = new ViewHolder(view);
-            view.setTag(holder);
+            view.setTag(new ViewHolder(view));
         } else {
             view = convertView;
         }
@@ -44,7 +43,7 @@ public class ItemsAdapter extends ArrayAdapter<ItemRecord> {
             holder.date.setText(record.getDate());
             holder.comments.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
-                    mListener.showComments(record);
+                    mListener.onShowComments(record);
                 }
             });
         }

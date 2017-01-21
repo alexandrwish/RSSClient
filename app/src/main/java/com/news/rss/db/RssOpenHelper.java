@@ -7,9 +7,9 @@ import com.news.rss.entity.DaoMaster;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseOpenHelper;
 
-public class RssOpenHelper extends DatabaseOpenHelper {
+class RssOpenHelper extends DatabaseOpenHelper {
 
-    public RssOpenHelper(Context context, String name, int version) {
+    RssOpenHelper(Context context, String name, int version) {
         super(context, name, version);
     }
 

@@ -27,13 +27,19 @@ public class RssPresenter {
     }
 
     public void restore(final ViewListener listener) {
+        Log.d(RssPresenter.class.getName(), "Восстановление данных из БД");
         mListener = listener;
         if (needRestore) {
             mLoader.restore()
                     .subscribeOn(Schedulers.io())
                     .subscribe(new Action1<List<ItemRecord>>() {
                         public void call(List<ItemRecord> records) {
-                            mListener.render(records);
+                            Log.d(RssPresenter.class.getName(), "Данные загружены из БД");
+                            render(records);
+                        }
+                    }, new Action1<Throwable>() {
+                        public void call(Throwable throwable) {
+                            Log.e(RssPresenter.class.getName(), throwable.getMessage(), throwable);
                         }
                     });
         }
@@ -45,38 +51,47 @@ public class RssPresenter {
 
     public void click(ItemRecord record) {
         if (mListener != null) {
-            mListener.show(record.getLink());
+            mListener.onShowNews(record.getLink());
         }
     }
 
     public void commentClick(ItemRecord record) {
         if (mListener != null) {
-            mListener.show(record.getComments());
+            mListener.onShowNews(record.getComments());
         }
     }
 
     public void load() {
         mLoader.load()
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<List<ItemRecord>>() {
                     public void onCompleted() {
-                        if (mListener != null) {
-                            mListener.stopRefresh();
-                        }
+                        complete();
                     }
 
-                    public void onError(Throwable e) {
-                        Log.e(RssPresenter.class.getName(), e.getMessage(), e);
+                    public void onError(Throwable throwable) {
+                        Log.e(RssPresenter.class.getName(), throwable.getMessage(), throwable);
                         mLoader.restore()
                                 .subscribeOn(Schedulers.io())
-                                .subscribe(new Action1<List<ItemRecord>>() {
-                                    public void call(List<ItemRecord> records) {
+                                .subscribe(new Subscriber<List<ItemRecord>>() {
+                                    public void onCompleted() {
+                                        complete();
+                                    }
+
+                                    public void onError(Throwable throwable) {
+                                        Log.e(RssPresenter.class.getName(), throwable.getMessage(), throwable);
+                                        complete();
+                                    }
+
+                                    public void onNext(List<ItemRecord> records) {
+                                        Log.d(RssPresenter.class.getName(), "Данные восстановлены из БД");
                                         render(records);
                                     }
                                 });
                     }
 
                     public void onNext(List<ItemRecord> records) {
+                        Log.d(RssPresenter.class.getName(), "Данные загружены по сети");
                         render(records);
                     }
                 });
@@ -84,10 +99,17 @@ public class RssPresenter {
 
     private void render(List<ItemRecord> records) {
         if (mListener != null) {
-            mListener.render(records);
+            mListener.onDataLoad(records);
             needRestore = false;
         } else {
             needRestore = true;
+            Log.e(RssPresenter.class.getName(), "Нету слушателя");
+        }
+    }
+
+    private void complete() {
+        if (mListener != null) {
+            mListener.onStopRefresh();
         }
     }
 }

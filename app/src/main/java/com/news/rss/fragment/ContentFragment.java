@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.news.rss.R;
@@ -23,6 +24,7 @@ public class ContentFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_content, container);
         ButterKnife.bind(this, view);
         mContent.getSettings().setJavaScriptEnabled(true);
+        mContent.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         return view;
     }
 

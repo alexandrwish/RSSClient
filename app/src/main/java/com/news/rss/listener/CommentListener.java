@@ -4,5 +4,5 @@ import com.news.rss.record.ItemRecord;
 
 public interface CommentListener {
 
-    void showComments(ItemRecord record);
+    void onShowComments(ItemRecord record);
 }

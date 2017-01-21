@@ -11,8 +11,6 @@ public class ChannelRecord {
 
     @Element(name = "lastBuildDate")
     private String date;
-    @Element(name = "language")
-    private String lang;
     @ElementList(name = "item", inline = true)
     private List<ItemRecord> items;
 
@@ -22,14 +20,6 @@ public class ChannelRecord {
 
     public void setDate(String date) {
         this.date = date;
-    }
-
-    public String getLang() {
-        return lang;
-    }
-
-    public void setLang(String lang) {
-        this.lang = lang;
     }
 
     public List<ItemRecord> getItems() {

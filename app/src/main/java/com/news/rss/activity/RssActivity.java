@@ -59,28 +59,29 @@ public class RssActivity extends Activity implements ViewListener, CommentListen
         super.onPause();
     }
 
-    public void render(final List<ItemRecord> records) {
+    public void onDataLoad(final List<ItemRecord> records) {
         runOnUiThread(new Runnable() {
             public void run() {
+                mAdapter.clear();
                 mAdapter.addAll(records);
                 mAdapter.notifyDataSetChanged();
             }
         });
     }
 
-    public void stopRefresh() {
-        mSwipeContainer.post(new Runnable() {
+    public void onStopRefresh() {
+        runOnUiThread(new Runnable() {
             public void run() {
                 mSwipeContainer.setRefreshing(false);
             }
         });
     }
 
-    public void show(String url) {
+    public void onShowNews(String url) {
         mFragment.show(url);
     }
 
-    public void showComments(ItemRecord record) {
+    public void onShowComments(ItemRecord record) {
         mPresenter.commentClick(record);
     }
 

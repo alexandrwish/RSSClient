@@ -1,6 +1,7 @@
 package com.news.rss.loader;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.news.rss.RssApplication;
 import com.news.rss.client.RssClient;
@@ -9,8 +10,12 @@ import com.news.rss.entity.ItemEntityDao;
 import com.news.rss.record.ItemRecord;
 import com.news.rss.record.RssRecord;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -42,10 +47,10 @@ public class ItemLoader {
 
     public Observable<List<ItemRecord>> load() {
         return mClient.getNews()
-                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
                 .filter(new Func1<RssRecord, Boolean>() {
                     public Boolean call(RssRecord rssRecord) {
-                        return mPreferences.getString("update_version", "").equalsIgnoreCase(rssRecord.getChannel().getDate());
+                        return !mPreferences.getString("update_version", "").equalsIgnoreCase(rssRecord.getChannel().getDate());
                     }
                 })
                 .doOnNext(new Action1<RssRecord>() {
@@ -56,6 +61,14 @@ public class ItemLoader {
                 .map(new Func1<RssRecord, List<ItemRecord>>() {
                     public List<ItemRecord> call(RssRecord rssRecord) {
                         return rssRecord.getChannel().getItems();
+                    }
+                })
+                .map(new Func1<List<ItemRecord>, List<ItemRecord>>() {
+                    public List<ItemRecord> call(List<ItemRecord> records) {
+                        for (ItemRecord record : records) {
+                            convertDateFormat(record);
+                        }
+                        return records;
                     }
                 })
                 .doOnNext(new Action1<List<ItemRecord>>() {
@@ -88,5 +101,17 @@ public class ItemLoader {
                 record.getDate(),
                 record.getDescription(),
                 record.getComments());
+    }
+
+    private void convertDateFormat(ItemRecord record) {
+        try {
+            DateFormat fromFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.UK);
+            fromFormat.setLenient(false);
+            DateFormat toFormat = new SimpleDateFormat("d MMM yyyy HH:mm", new Locale("ru"));
+            toFormat.setLenient(false);
+            record.setDate(toFormat.format(fromFormat.parse(record.getDate())));
+        } catch (ParseException e) {
+            Log.e(ItemLoader.class.getName(), e.getMessage(), e);
+        }
     }
 }
