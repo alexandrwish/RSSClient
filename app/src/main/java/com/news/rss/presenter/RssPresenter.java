@@ -18,7 +18,6 @@ public class RssPresenter {
 
     private final ItemLoader mLoader;
     private ViewListener mListener;
-    private boolean needRestore;
 
     @Inject
     public RssPresenter(ItemLoader loader) {
@@ -29,20 +28,18 @@ public class RssPresenter {
     public void restore(final ViewListener listener) {
         Log.d(RssPresenter.class.getName(), "Восстановление данных из БД");
         mListener = listener;
-        if (needRestore) {
-            mLoader.restore()
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(new Action1<List<ItemRecord>>() {
-                        public void call(List<ItemRecord> records) {
-                            Log.d(RssPresenter.class.getName(), "Данные загружены из БД");
-                            render(records);
-                        }
-                    }, new Action1<Throwable>() {
-                        public void call(Throwable throwable) {
-                            Log.e(RssPresenter.class.getName(), throwable.getMessage(), throwable);
-                        }
-                    });
-        }
+        mLoader.restore()
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Action1<List<ItemRecord>>() {
+                    public void call(List<ItemRecord> records) {
+                        Log.d(RssPresenter.class.getName(), "Данные загружены из БД");
+                        render(records);
+                    }
+                }, new Action1<Throwable>() {
+                    public void call(Throwable throwable) {
+                        Log.e(RssPresenter.class.getName(), throwable.getMessage(), throwable);
+                    }
+                });
     }
 
     public void pause() {
@@ -100,9 +97,7 @@ public class RssPresenter {
     private void render(List<ItemRecord> records) {
         if (mListener != null) {
             mListener.onDataLoad(records);
-            needRestore = false;
         } else {
-            needRestore = true;
             Log.e(RssPresenter.class.getName(), "Нету слушателя");
         }
     }
